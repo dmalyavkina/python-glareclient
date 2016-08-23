@@ -28,7 +28,7 @@ import logging
 import os
 import sys
 import traceback
-
+OS_IMAGE_URL
 from oslo_utils import encodeutils
 from oslo_utils import importutils
 import six.moves.urllib.parse as urlparse
@@ -46,7 +46,7 @@ from keystoneclient import session
 
 osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
-SUPPORTED_VERSIONS = [1, 2]
+SUPPORTED_VERSIONS = [1]
 
 
 class OpenStackImagesShell(object):
@@ -112,10 +112,9 @@ class OpenStackImagesShell(object):
 
     def get_base_parser(self):
         parser = argparse.ArgumentParser(
-            prog='glance',
+            prog='glare',
             description=__doc__.strip(),
-            epilog='See "glance help COMMAND" '
-                   'for help on a specific command.',
+            epilog='See "glare help COMMAND" for help on a specific command.',
             add_help=False,
             formatter_class=HelpFormatter,
         )
@@ -123,8 +122,7 @@ class OpenStackImagesShell(object):
         # Global arguments
         parser.add_argument('-h', '--help',
                             action='store_true',
-                            help=argparse.SUPPRESS,
-                            )
+                            help=argparse.SUPPRESS)
 
         parser.add_argument('--version',
                             action='version',
@@ -139,13 +137,6 @@ class OpenStackImagesShell(object):
                             default=False, action="store_true",
                             help="Print more verbose output.")
 
-        parser.add_argument('--get-schema',
-                            default=False, action="store_true",
-                            dest='get_schema',
-                            help='Ignores cached copy and forces retrieval '
-                                 'of schema that generates portions of the '
-                                 'help text. Ignored with API version 1.')
-
         parser.add_argument('--no-ssl-compression',
                             dest='ssl_compression',
                             default=True, action='store_false',
@@ -154,30 +145,25 @@ class OpenStackImagesShell(object):
                                  'should be disabled by default by the '
                                  'system SSL library.')
 
-        parser.add_argument('-f', '--force',
-                            dest='force',
-                            default=False, action='store_true',
-                            help='Prevent select actions from requesting '
-                            'user confirmation.')
-
-        parser.add_argument('--os-image-url',
-                            default=utils.env('OS_IMAGE_URL'),
-                            help=('Defaults to env[OS_IMAGE_URL]. '
+        parser.add_argument('--os-artifact-url',
+                            default=utils.env('OS_ARTIFACT_URL'),
+                            help=('Defaults to env[OS_ARTIFACT_URL]. '
                                   'If the provided image url contains '
                                   'a version number and '
                                   '`--os-image-api-version` is omitted '
                                   'the version of the URL will be picked as '
                                   'the image api version to use.'))
 
-        parser.add_argument('--os_image_url',
+        parser.add_argument('--os_artifact_url',
                             help=argparse.SUPPRESS)
 
-        parser.add_argument('--os-image-api-version',
-                            default=utils.env('OS_IMAGE_API_VERSION',
+        parser.add_argument('--os-artifact-api-version',
+                            default=utils.env('OS_ARTIFACT_API_VERSION',
                                               default=None),
-                            help='Defaults to env[OS_IMAGE_API_VERSION] or 2.')
+                            help='Defaults to env[OS_ARTIFACT_API_VERSION] '
+                                 'or 1.')
 
-        parser.add_argument('--os_image_api_version',
+        parser.add_argument('--os_artifact_api_version',
                             help=argparse.SUPPRESS)
 
         if osprofiler_profiler:
@@ -244,14 +230,14 @@ class OpenStackImagesShell(object):
         self.subcommands['bash_completion'] = subparser
         subparser.set_defaults(func=self.do_bash_completion)
 
-    def _get_image_url(self, args):
+    def _get_artifact_url(self, args):
         """Translate the available url-related options into a single string.
 
         Return the endpoint that should be used to talk to Glance if a
         clear decision can be made. Otherwise, return None.
         """
-        if args.os_image_url:
-            return args.os_image_url
+        if args.os_artifact_url:
+            return args.os_artifact_url
         else:
             return None
 
@@ -440,51 +426,13 @@ class OpenStackImagesShell(object):
 
             if endpoint is None:
                 endpoint_type = args.os_endpoint_type or 'public'
-                service_type = args.os_service_type or 'image'
+                service_type = args.os_service_type or 'glare'
                 endpoint = ks_session.get_endpoint(
                     service_type=service_type,
                     interface=endpoint_type,
                     region_name=args.os_region_name)
 
         return glareclient.Client(api_version, endpoint, **kwargs)
-
-    def _cache_schemas(self, options, client, home_dir='~/.glanceclient'):
-        homedir = os.path.expanduser(home_dir)
-        path_prefix = homedir
-        if options.os_auth_url:
-            hash_host = hashlib.sha1(options.os_auth_url.encode('utf-8'))
-            path_prefix = os.path.join(path_prefix, hash_host.hexdigest())
-        if not os.path.exists(path_prefix):
-            try:
-                os.makedirs(path_prefix)
-            except OSError as e:
-                # This avoids glanceclient to crash if it can't write to
-                # ~/.glanceclient, which may happen on some env (for me,
-                # it happens in Jenkins, as glanceclient can't write to
-                # /var/lib/jenkins).
-                msg = '%s' % e
-                print(encodeutils.safe_decode(msg), file=sys.stderr)
-        resources = ['image', 'metadefs/namespace', 'metadefs/resource_type']
-        schema_file_paths = [os.path.join(path_prefix, x + '_schema.json')
-                             for x in ['image', 'namespace', 'resource_type']]
-
-        failed_download_schema = 0
-        for resource, schema_file_path in zip(resources, schema_file_paths):
-            if (not os.path.exists(schema_file_path)) or options.get_schema:
-                try:
-                    schema = client.schemas.get(resource)
-                    with open(schema_file_path, 'w') as f:
-                        f.write(json.dumps(schema.raw()))
-                except exc.Unauthorized:
-                    raise exc.CommandError(
-                        "Invalid OpenStack Identity credentials.")
-                except Exception:
-                    # NOTE(esheffield) do nothing here, we'll get a message
-                    # later if the schema is missing
-                    failed_download_schema += 1
-                    pass
-
-        return failed_download_schema >= len(resources)
 
     def main(self, argv):
 
@@ -513,7 +461,7 @@ class OpenStackImagesShell(object):
             # to the api-image-version arg. If both of these fail then
             # fallback to the minimum supported one and let keystone
             # do the magic.
-            endpoint = self._get_image_url(options)
+            endpoint = self._get_artifact_url(options)
             endpoint, url_version = utils.strip_version(endpoint)
         except ValueError:
             # NOTE(flaper87): ValueError is raised if no endpoint is provided
@@ -521,7 +469,8 @@ class OpenStackImagesShell(object):
 
         # build available subcommands based on version
         try:
-            api_version = int(options.os_image_api_version or url_version or 2)
+            api_version = int(options.os_artifact_api_version or
+                              url_version or 1)
             if api_version not in SUPPORTED_VERSIONS:
                 raise ValueError
         except ValueError:
@@ -547,26 +496,6 @@ class OpenStackImagesShell(object):
             self.do_bash_completion(args)
             return 0
 
-        if not options.os_image_api_version and api_version == 2:
-            switch_version = True
-            client = self._get_versioned_client('2', args)
-
-            resp, body = client.http_client.get('/versions')
-
-            for version in body['versions']:
-                if version['id'].startswith('v2'):
-                    # NOTE(flaper87): We know v2 is enabled in the server,
-                    # which means we should be able to get the schemas and
-                    # move on.
-                    switch_version = self._cache_schemas(options, client)
-                    break
-
-            if switch_version:
-                print('WARNING: The client is falling back to v1 because'
-                      ' the accessing to v2 failed. This behavior will'
-                      ' be removed in future versions', file=sys.stderr)
-                api_version = 1
-
         sub_parser = _get_subparser(api_version)
 
         # Parse args again and call whatever callback was selected
@@ -585,7 +514,7 @@ class OpenStackImagesShell(object):
             logging.basicConfig(level=logging.DEBUG)
             # for iso8601 < 0.1.11
             logging.getLogger('iso8601').setLevel(logging.WARNING)
-        LOG = logging.getLogger('glanceclient')
+        LOG = logging.getLogger('glareclient')
         LOG.addHandler(logging.StreamHandler())
         LOG.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
@@ -621,21 +550,11 @@ class OpenStackImagesShell(object):
         else:
             parser.print_help()
 
-        if not args.os_image_api_version or args.os_image_api_version == '2':
-            # NOTE(NiallBunting) This currently assumes that the only versions
-            # are one and two.
-            try:
-                if command is None:
-                    print("\nRun `glance --os-image-api-version 1 help`"
-                          " for v1 help")
-                else:
-                    self.get_subcommand_parser(1)
-                    if command in self.subcommands:
-                        command = ' ' + command
-                        print(("\nRun `glance --os-image-api-version 1 help%s`"
-                               " for v1 help") % (command or ''))
-            except ImportError:
-                pass
+        if command is not None:
+            self.get_subcommand_parser(1)
+            if command in self.subcommands:
+                command = ' ' + command
+                print("\nRun `glare  help%s` for help" % (command or ''))
 
     def do_bash_completion(self, _args):
         """Prints arguments for bash_completion.
@@ -667,7 +586,7 @@ def main():
         argv = [encodeutils.safe_decode(a) for a in sys.argv[1:]]
         OpenStackImagesShell().main(argv)
     except KeyboardInterrupt:
-        utils.exit('... terminating glance client', exit_code=130)
+        utils.exit('... terminating glare client', exit_code=130)
     except Exception as e:
         if utils.debug_enabled(argv) is True:
             traceback.print_exc()
