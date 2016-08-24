@@ -14,7 +14,7 @@
 #    under the License.
 
 """
-Command-line interface to the OpenStack Images API.
+Command-line interface to the OpenStack Artifacts API.
 """
 
 from __future__ import print_function
@@ -28,7 +28,6 @@ import logging
 import os
 import sys
 import traceback
-OS_IMAGE_URL
 from oslo_utils import encodeutils
 from oslo_utils import importutils
 import six.moves.urllib.parse as urlparse
@@ -404,7 +403,7 @@ class OpenStackImagesShell(object):
         return kwargs
 
     def _get_versioned_client(self, api_version, args):
-        endpoint = self._get_image_url(args)
+        endpoint = self._get_artifact_url(args)
         auth_token = args.os_auth_token
 
         if endpoint and auth_token:
@@ -426,7 +425,7 @@ class OpenStackImagesShell(object):
 
             if endpoint is None:
                 endpoint_type = args.os_endpoint_type or 'public'
-                service_type = args.os_service_type or 'glare'
+                service_type = args.os_service_type or 'artifact'
                 endpoint = ks_session.get_endpoint(
                     service_type=service_type,
                     interface=endpoint_type,
