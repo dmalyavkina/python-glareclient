@@ -16,7 +16,7 @@
 """
 Base utilities to build API operation managers and objects on top of.
 
-DEPRECATED post v.0.12.0. Use 'glanceclient.openstack.common.apiclient.base'
+DEPRECATED post v.0.12.0. Use 'glareclient.openstack.common.apiclient.base'
 instead of this module."
 """
 
@@ -25,8 +25,8 @@ import warnings
 from glareclient.openstack.common.apiclient import base
 
 
-warnings.warn("The 'glanceclient.common.base' module is deprecated post "
-              "v.0.12.0. Use 'glanceclient.openstack.common.apiclient.base' "
+warnings.warn("The 'glareclient.common.base' module is deprecated post "
+              "v.0.12.0. Use 'glareclient.openstack.common.apiclient.base' "
               "instead of this one.", DeprecationWarning)
 
 

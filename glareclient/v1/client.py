@@ -36,5 +36,5 @@ class Client(object):
         endpoint, self.version = utils.endpoint_version_from_url(endpoint, 1.0)
         self.http_client = http.get_http_client(endpoint=endpoint, **kwargs)
 
-        self.images = artifacts.Controller(self.http_client,)
+        self.artifacts = artifacts.Controller(self.http_client)
         self.versions = versions.VersionController(self.http_client)

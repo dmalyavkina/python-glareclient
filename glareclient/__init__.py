@@ -19,11 +19,11 @@ try:
     Client = glareclient.client.Client
 except ImportError:
     import warnings
-    warnings.warn("Could not import glanceclient.client", ImportWarning)
+    warnings.warn("Could not import glareclient.client", ImportWarning)
 
 import pbr.version
 
-version_info = pbr.version.VersionInfo('python-glanceclient')
+version_info = pbr.version.VersionInfo('python-glareclient')
 
 try:
     __version__ = version_info.version_string()

@@ -12,4 +12,4 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from glareclient.v2.client import Client      # noqa
+from glareclient.v1.client import Client      # noqa
