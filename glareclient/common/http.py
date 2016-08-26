@@ -38,7 +38,7 @@ from glareclient import exc
 osprofiler_web = importutils.try_import("osprofiler.web")
 
 LOG = logging.getLogger(__name__)
-USER_AGENT = 'python-glreclient'
+USER_AGENT = 'python-glareclient'
 CHUNKSIZE = 1024 * 64  # 64kB
 
 

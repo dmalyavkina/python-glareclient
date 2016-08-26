@@ -260,7 +260,7 @@ def env(*vars, **kwargs):
 
 
 def import_versioned_module(version, submodule=None):
-    module = 'glanceclient.v%s' % version
+    module = 'glareclient.v%s' % version
     if submodule:
         module = '.'.join((module, submodule))
     return importutils.import_module(module)
@@ -456,7 +456,7 @@ def endpoint_version_from_url(endpoint, default_version=None):
 
 
 def debug_enabled(argv):
-    if bool(env('GLANCECLIENT_DEBUG')) is True:
+    if bool(env('GLARECLIENT_DEBUG')) is True:
         return True
     if '--debug' in argv or '-d' in argv:
         return True

@@ -33,7 +33,7 @@ class Client(object):
     """
 
     def __init__(self, endpoint=None, **kwargs):
-        endpoint, self.version = utils.endpoint_version_from_url(endpoint, 2.0)
+        endpoint, self.version = utils.endpoint_version_from_url(endpoint, 1.0)
         self.http_client = http.get_http_client(endpoint=endpoint, **kwargs)
 
         self.images = artifacts.Controller(self.http_client,)

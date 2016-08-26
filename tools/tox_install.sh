@@ -6,7 +6,7 @@
 
 ZUUL_CLONER=/usr/zuul-env/bin/zuul-cloner
 BRANCH_NAME=master
-CLIENT_NAME=python-glanceclient
+CLIENT_NAME=python-glareclient
 requirements_installed=$(echo "import openstack_requirements" | python 2>/dev/null ; echo $?)
 
 set -e

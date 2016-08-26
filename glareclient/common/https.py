@@ -154,7 +154,7 @@ class HTTPSAdapter(adapters.HTTPAdapter):
             url = encodeutils.safe_encode(url)
         return url
 
-    def _create_glance_httpsconnectionpool(self, url):
+    def _create_glare_httpsconnectionpool(self, url):
         kw = self.poolmanager.connection_pool_kw
         # Parse the url to get the scheme, host, and port
         parsed = compat.urlparse(url)
@@ -178,7 +178,7 @@ class HTTPSAdapter(adapters.HTTPAdapter):
             if not url.startswith('glance+https://'):
                 raise
 
-            return self._create_glance_httpsconnectionpool(url)
+            return self._create_glare_httpsconnectionpool(url)
 
     def cert_verify(self, conn, url, verify, cert):
         super(HTTPSAdapter, self).cert_verify(conn, url, verify, cert)
