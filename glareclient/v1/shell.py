@@ -15,10 +15,9 @@
 
 from glareclient._i18n import _
 from glareclient.common import utils
-from glareclient.v1 import artifacts
 
 
-def do_image_list(gc, args):
+def do_artifact_list(gc, args):
     """List artifacts you can access."""
 
     kwargs = {}
@@ -28,12 +27,8 @@ def do_image_list(gc, args):
     utils.print_list(artifacts, columns)
 
 
-@utils.arg('id', metavar='<IMAGE_ID>', help=_('ID of image to describe.'))
-@utils.arg('--human-readable', action='store_true', default=False,
-           help=_('Print image size in a human-friendly format.'))
-@utils.arg('--max-column-width', metavar='<integer>', default=80,
-           help=_('The max column width of the printed table.'))
-def do_image_show(gc, args):
+@utils.arg('id', metavar='<A_ID>', help=_('ID of image to describe.'))
+def do_artifact_show(gc, args):
     """Describe a specific image."""
     af = gc.artifacts.get(args.id)
     utils.print_image(af, args.human_readable, int(args.max_column_width))
