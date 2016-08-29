@@ -18,12 +18,12 @@ class Controller(object):
     def __init__(self, http_client):
         self.http_client = http_client
 
-    def list(self, af_type, **kwargs):
+    def list(self, af_type='sample_artifact', **kwargs):
         url = '/artifacts/%s' % af_type
         resp, body = self.http_client.get(url)
         return body
 
-    def get(self, af_type, af_id):
+    def get(self, af_id, af_type='sample_artifact'):
         url = '/artifacts/%(af_type)s/%(af_id)s' % {'af_type': af_type,
                                                     'af_id': af_id}
         resp, body = self.http_client.get(url)

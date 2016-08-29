@@ -10,7 +10,7 @@ cover
 AUTHORS
 build
 dist
-python_glanceclient.egg-info
+python_glareclient.egg-info
 ChangeLog
 run_tests.err.log
 .testrepository
@@ -19,6 +19,6 @@ doc/source/api
 doc/build
 *.egg
 .eggs/*
-glanceclient/versioninfo
+glareclient/versioninfo
 # Files created by releasenotes build
 releasenotes/build

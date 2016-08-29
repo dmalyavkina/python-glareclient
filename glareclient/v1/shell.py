@@ -17,19 +17,23 @@ from glareclient._i18n import _
 from glareclient.common import utils
 
 
+@utils.arg('--type', metavar='<ARTIFACT_TYPE>',
+           help=_('Type of artifact to describe.'))
 def do_artifact_list(gc, args):
     """List artifacts you can access."""
-
     kwargs = {}
     columns = ['ID', 'Name']
 
-    artifacts = gc.artifacts.list(**kwargs)
+    artifacts = gc.artifacts.list(af_type=args.type, **kwargs)
     utils.print_list(artifacts, columns)
 
 
-@utils.arg('id', metavar='<A_ID>', help=_('ID of image to describe.'))
+@utils.arg('id', metavar='<ARTIFACT_ID>',
+           help=_('ID of artifact to describe.'))
+@utils.arg('--type', metavar='<ARTIFACT_TYPE>',
+           help=_('Type of artifact to describe.'))
 def do_artifact_show(gc, args):
     """Describe a specific image."""
-    af = gc.artifacts.get(args.id)
+    af = gc.artifacts.get(args.id, af_type=args.type)
     utils.print_image(af, args.human_readable, int(args.max_column_width))
 

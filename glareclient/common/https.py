@@ -139,11 +139,11 @@ class HTTPSAdapter(adapters.HTTPAdapter):
     """This adapter will be used just when ssl compression should be disabled.
 
     The init method overwrites the default https pool by setting
-    glanceclient's one.
+    glareclient's one.
     """
     def __init__(self, *args, **kwargs):
         classes_by_scheme = poolmanager.pool_classes_by_scheme
-        classes_by_scheme["glance+https"] = HTTPSConnectionPool
+        classes_by_scheme["glare+https"] = HTTPSConnectionPool
         super(HTTPSAdapter, self).__init__(*args, **kwargs)
 
     def request_url(self, request, proxies):
@@ -174,8 +174,8 @@ class HTTPSAdapter(adapters.HTTPAdapter):
         except KeyError:
             # NOTE(sigamvirus24): This works around modifying a module global
             # which fixes bug #1396550
-            # The scheme is most likely glance+https but check anyway
-            if not url.startswith('glance+https://'):
+            # The scheme is most likely glare+https but check anyway
+            if not url.startswith('glare+https://'):
                 raise
 
             return self._create_glare_httpsconnectionpool(url)
@@ -192,14 +192,14 @@ class HTTPSConnectionPool(connectionpool.HTTPSConnectionPool):
     HTTPSConnectionPool will be instantiated when a new
     connection is requested to the HTTPSAdapter. This
     implementation overwrites the _new_conn method and
-    returns an instances of glanceclient's VerifiedHTTPSConnection
+    returns an instances of glareclient's VerifiedHTTPSConnection
     which handles no compression.
 
     ssl_compression is hard-coded to False because this will
     be used just when the user sets --no-ssl-compression.
     """
 
-    scheme = 'glance+https'
+    scheme = 'glare+https'
 
     def _new_conn(self):
         self.num_connections += 1

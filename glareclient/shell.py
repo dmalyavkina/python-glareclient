@@ -137,9 +137,9 @@ class OpenStackImagesShell(object):
                             version=glareclient.__version__)
 
         parser.add_argument('-d', '--debug',
-                            default=bool(utils.env('GLANCECLIENT_DEBUG')),
+                            default=bool(utils.env('GLARECLIENT_DEBUG')),
                             action='store_true',
-                            help='Defaults to env[GLANCECLIENT_DEBUG].')
+                            help='Defaults to env[GLARECLIENT_DEBUG].')
 
         parser.add_argument('-v', '--verbose',
                             default=False, action="store_true",
@@ -177,16 +177,7 @@ class OpenStackImagesShell(object):
         if osprofiler_profiler:
             parser.add_argument('--profile',
                                 metavar='HMAC_KEY',
-                                help='HMAC key to use for encrypting context '
-                                'data for performance profiling of operation. '
-                                'This key should be the value of HMAC key '
-                                'configured in osprofiler middleware in '
-                                'glance, it is specified in paste '
-                                'configuration file at '
-                                '/etc/glance/api-paste.ini and '
-                                '/etc/glance/registry-paste.ini. Without key '
-                                'the profiling will not be triggered even '
-                                'if osprofiler is enabled on server side.')
+                                help='')
 
         self._append_global_identity_args(parser, argv)
         return parser
@@ -240,7 +231,7 @@ class OpenStackImagesShell(object):
     def _get_artifact_url(self, args):
         """Translate the available url-related options into a single string.
 
-        Return the endpoint that should be used to talk to Glance if a
+        Return the endpoint that should be used to talk to Glare if a
         clear decision can be made. Otherwise, return None.
         """
         if args.os_artifact_url:
@@ -563,7 +554,7 @@ class OpenStackImagesShell(object):
         """Prints arguments for bash_completion.
 
         Prints all of the commands and options to stdout so that the
-        glance.bash_completion script doesn't have to hard code them.
+        glare.bash_completion script doesn't have to hard code them.
         """
         commands = set()
         options = set()

@@ -95,7 +95,7 @@ class _BaseHTTPClient(object):
         # log request-id for each api cal
         request_id = resp.headers.get('x-openstack-request-id')
         if request_id:
-            LOG.debug('%(method)s call to glance-api for '
+            LOG.debug('%(method)s call to glare-api for '
                       '%(url)s used request id '
                       '%(response_request_id)s',
                       {'method': resp.request.method,

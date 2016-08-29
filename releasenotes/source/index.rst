@@ -1,6 +1,6 @@
-==========================
-glanceclient Release Notes
-==========================
+=========================
+glareclient Release Notes
+=========================
 
 .. toctree::
    :maxdepth: 1

@@ -21,15 +21,15 @@ from glareclient.v1 import versions
 
 
 class Client(object):
-    """Client for the OpenStack Images v2 API.
+    """Client for the Glare Artifact Repository v2 API.
 
-    :param string endpoint: A user-supplied endpoint URL for the glance
+    :param string endpoint: A user-supplied endpoint URL for the glare
                             service.
     :param string token: Token for authentication.
     :param integer timeout: Allows customization of the timeout for client
                             http requests. (optional)
     :param string language_header: Set Accept-Language header to be sent in
-                                   requests to glance.
+                                   requests to glare.
     """
 
     def __init__(self, endpoint=None, **kwargs):

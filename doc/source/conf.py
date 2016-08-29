@@ -28,7 +28,7 @@ ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
 
 def gen_ref(ver, title, names):
     refdir = os.path.join(BASE_DIR, "ref")
-    pkg = "glanceclient"
+    pkg = "glareclient"
     if ver:
         pkg = "%s.%s" % (pkg, ver)
         refdir = os.path.join(refdir, ver)
@@ -59,11 +59,8 @@ def gen_ref(ver, title, names):
                              "pkg": pkg, "name": name})
 
 gen_ref(None, "API", ["client", "exc"])
-gen_ref("v1", "OpenStack Images Version 1 Client Reference",
-        ["client", "images", "image_members"])
-gen_ref("v2", "OpenStack Images Version 2 Client Reference",
-        ["client", "images", "image_tags",
-         "image_members", "tasks", "metadefs"])
+gen_ref("v1", "Glare Artifact Repository Version 1 Client Reference",
+        ["client", "artifacts"])
 
 # -- General configuration ----------------------------------------------------
 
@@ -85,7 +82,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'python-glanceclient'
+project = 'python-glareclient'
 copyright = u'OpenStack Foundation'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
@@ -102,7 +99,7 @@ pygments_style = 'sphinx'
 # List of tuples 'sourcefile', 'target', u'title', u'Authors name', 'manual'
 
 man_pages = [
-    ('man/glance', 'glance', u'Client for OpenStack Images API',
+    ('man/glare', 'glare', u'Client for Glare Artifact Repository',
      [u'OpenStack Foundation'], 1),
 ]
 # -- Options for HTML output --------------------------------------------------
