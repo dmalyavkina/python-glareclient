@@ -13,7 +13,7 @@
 from osc_lib import utils
 from oslo_log import log as logging
 
-from glareclient.i18n import _
+from glareclient._i18n import _
 
 LOG = logging.getLogger(__name__)
 
