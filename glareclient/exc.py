@@ -158,7 +158,7 @@ def from_response(response, body=None):
     cls = _code_map.get(response.status_code, HTTPException)
     if body and 'json' in response.headers['content-type']:
         # Iterate over the nested objects and retrieve the "message" attribute.
-        messages = [obj.get('message') for obj in response.json().values()]
+        messages = [response.json().get('error').get('message')]
         # Join all of the messages together nicely and filter out any objects
         # that don't have a "message" attr.
         details = '\n'.join(i for i in messages if i is not None)
