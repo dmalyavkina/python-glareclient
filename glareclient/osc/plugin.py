@@ -9,7 +9,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 from osc_lib import utils
 from oslo_log import log as logging
 
@@ -17,7 +16,7 @@ from glareclient._i18n import _
 
 LOG = logging.getLogger(__name__)
 
-DEFAULT_APPLICATION_CATALOG_API_VERSION = "1"
+DEFAULT_API_VERSION = "1"
 API_VERSION_OPTION = "os_artifact_api_version"
 API_NAME = "artifact"
 API_VERSIONS = {
@@ -26,20 +25,26 @@ API_VERSIONS = {
 
 
 def make_client(instance):
-    """Returns an application-catalog service client"""
-    glare_client = utils.get_client_class(
+    """Returns an artifact service client"""
+    artifact_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
-    LOG.debug("Instantiating glare client: {0}".format(
-              glare_client))
+    LOG.debug('Instantiating artifact client: %s', artifact_client)
 
-    client = glare_client(
-        instance.get_configuration().get('glare_url'),
-        region_name=instance._region_name,
-        session=instance.session,
-        service_type='artifact',
+    endpoint = instance.get_endpoint_for_service_type(
+        API_NAME,
+        region_name=instance.region_name,
+        interface=instance.interface,
     )
+
+    client = artifact_client(
+        endpoint,
+        token=instance.auth.get_token(instance.session),
+        cacert=instance.cacert,
+        insecure=not instance.verify,
+    )
+
     return client
 
 
@@ -47,14 +52,9 @@ def build_option_parser(parser):
     """Hook to add global options"""
     parser.add_argument(
         '--os-artifact-api-version',
-        metavar='<--os-artifact-api-version>',
-        default=utils.env(
-            'OS_ARTIFACT_API_VERSION',
-            default=DEFAULT_APPLICATION_CATALOG_API_VERSION),
-        help=_("Artifact API version, default={0}"
-               "(Env:OS_ARTIFACT_API_VERSION)").format(
-                   DEFAULT_APPLICATION_CATALOG_API_VERSION))
-    parser.add_argument('--glare-url',
-                        default=utils.env('GLARE_URL'),
-                        help=_('Defaults to env[GLARE_URL].'))
+        metavar='<artifact-api-version>',
+        default=utils.env('OS_ARTIFACT_API_VERSION'),
+        help=_('Artifact API version, default=%s '
+               '(Env: OS_ARTIFACT_API_VERSION)') % DEFAULT_API_VERSION,
+    )
     return parser
