@@ -144,7 +144,7 @@ class Controller(object):
         url = '/artifacts/%s' % type_name
 
         for param in url_params:
-            url = '%s&%s' % (url, parse.urlencode(param))
+            url = '%s?%s' % (url, parse.urlencode(param))
 
         if 'sort' in kwargs:
             url = '%s&sort=%s' % (url, self._validate_sort_param(

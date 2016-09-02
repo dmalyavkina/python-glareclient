@@ -26,25 +26,19 @@ API_VERSIONS = {
 
 def make_client(instance):
     """Returns an artifact service client"""
-    artifact_client = utils.get_client_class(
+    glare_client = utils.get_client_class(
         API_NAME,
         instance._api_version[API_NAME],
         API_VERSIONS)
-    LOG.debug('Instantiating artifact client: %s', artifact_client)
+    LOG.debug("Instantiating glare client: {0}".format(
+              glare_client))
 
-    endpoint = instance.get_endpoint_for_service_type(
-        API_NAME,
-        region_name=instance.region_name,
-        interface=instance.interface,
+    client = glare_client(
+        instance.get_configuration().get('glare_url'),
+        region_name=instance._region_name,
+        session=instance.session,
+        service_type='artifact',
     )
-
-    client = artifact_client(
-        endpoint,
-        token=instance.auth.get_token(instance.session),
-        cacert=instance.cacert,
-        insecure=not instance.verify,
-    )
-
     return client
 
 
