@@ -60,8 +60,13 @@ class ListArtifacts(command.Lister):
     def take_action(self, parsed_args):
         LOG.debug("take_action({0})".format(parsed_args))
         client = self.app.client_manager.artifact
+        params = {'limit': parsed_args.limit,
+                  'filters': parsed_args.filters,
+                  'sort': parsed_args.sort,
+                  'page_size': parsed_args.page_size}
+
         data = client.artifacts.list(type_name=parsed_args.type_name,
-                                     **parsed_args)
+                                     **params)
 
         columns = ('id', 'name', 'version', 'owner', 'visibility', 'status')
         column_headers = [c.capitalize() for c in columns]
@@ -330,3 +335,4 @@ class PublishArtifact(command.ShowOne):
         data = client.artifacts.publish(parsed_args.id,
                                         type_name=parsed_args.type_name)
         return self.dict2columns(data)
+
