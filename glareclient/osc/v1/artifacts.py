@@ -86,7 +86,7 @@ class ShowArtifact(command.ShowOne):
         parser.add_argument(
             "id",
             metavar="<ID>",
-            help="Name or ID of the artifact to display",
+            help="ID of the artifact to display",
         )
         parser.add_argument(
             '--type-name',
@@ -209,14 +209,14 @@ class UpdateArtifact(command.ShowOne):
 
 
 class DeleteArtifact(command.ShowOne):
-    """Delete artifact details"""
+    """Delete artifact"""
 
     def get_parser(self, prog_name):
         parser = super(DeleteArtifact, self).get_parser(prog_name)
         parser.add_argument(
             "id",
             metavar="<ID>",
-            help="Name or ID of the artifact to delete",
+            help="ID of the artifact to delete",
         )
         parser.add_argument(
             '--type-name',
@@ -242,7 +242,7 @@ class ActiveArtifact(command.ShowOne):
         parser.add_argument(
             "id",
             metavar="<ID>",
-            help="Name or ID of the artifact to activate",
+            help="ID of the artifact to activate",
         )
         parser.add_argument(
             '--type-name',
@@ -268,7 +268,7 @@ class DeactivateArtifact(command.ShowOne):
         parser.add_argument(
             "id",
             metavar="<ID>",
-            help="Name or ID of the artifact to deactivate",
+            help="ID of the artifact to deactivate",
         )
         parser.add_argument(
             '--type-name',
@@ -294,7 +294,7 @@ class ReactivateArtifact(command.ShowOne):
         parser.add_argument(
             "id",
             metavar="<ID>",
-            help="Name or ID of the artifact to reactivate",
+            help="ID of the artifact to reactivate",
         )
         parser.add_argument(
             '--type-name',
@@ -320,7 +320,7 @@ class PublishArtifact(command.ShowOne):
         parser.add_argument(
             "id",
             metavar="<ID>",
-            help="Name or ID of the artifact to publish",
+            help="ID of the artifact to publish",
         )
         parser.add_argument(
             '--type-name',
