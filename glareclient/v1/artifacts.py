@@ -117,7 +117,7 @@ class Controller(object):
                                                 "limit=%s" % limit)
 
                 resp, body = self.http_client.get(next_url)
-                for artifact in body['artifacts']:
+                for artifact in body[type_name]:
                     yield artifact
 
                     if limit:
@@ -150,11 +150,8 @@ class Controller(object):
             url = '%s&sort=%s' % (url, self._validate_sort_param(
                 kwargs['sort']))
 
-        # !!!!!
-        # for artifact in paginate(url, page_size, limit):
-        #    yield artifact
-        resp, body = self.http_client.get(url)
-        return body[type_name]
+        for artifact in paginate(url, page_size, limit):
+            yield artifact
 
     def active(self, artifact_id, type_name=None):
         """Set artifact status to 'active'.

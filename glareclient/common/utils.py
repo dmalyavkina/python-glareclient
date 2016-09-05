@@ -151,3 +151,32 @@ class IterableWithLength(object):
 
     def __len__(self):
         return self.length
+
+
+def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
+    """Return a tuple containing the item properties.
+
+    :param item: a single item resource (e.g. Server, Project, etc)
+    :param fields: tuple of strings with the desired field names
+    :param mixed_case_fields: tuple of field names to preserve case
+    :param formatters: dictionary mapping field names to callables
+       to format the values
+    """
+    if mixed_case_fields is None:
+        mixed_case_fields = []
+    if formatters is None:
+        formatters = {}
+
+    row = []
+
+    for field in fields:
+        if field in mixed_case_fields:
+            field_name = field.replace(' ', '_')
+        else:
+            field_name = field.lower().replace(' ', '_')
+        data = item[field_name]
+        if field in formatters:
+            row.append(formatters[field](data))
+        else:
+            row.append(data)
+    return tuple(row)

@@ -13,8 +13,9 @@
 # under the License.
 
 from osc_lib.command import command
-from osc_lib import utils
 from oslo_log import log as logging
+
+from glareclient.common import utils as glare_utils
 
 LOG = logging.getLogger(__name__)
 
@@ -44,13 +45,13 @@ class ListArtifacts(command.Lister):
         )
         parser.add_argument(
             '--filters',
-            default=None,
+            default={},
             metavar='<KEY=VALUE>',
             help='Filter artifacts by a user-defined artifact property.',
         )
         parser.add_argument(
             '--sort',
-            default=None,
+            default='name:asc',
             metavar='<key>[:<direction>]',
             help="Comma-separated list of sort keys and directions in the "
                  "form of <key>[:<asc|desc>].",
@@ -72,7 +73,7 @@ class ListArtifacts(command.Lister):
         column_headers = [c.capitalize() for c in columns]
         table = []
         for af in data:
-            table.append(utils.get_item_properties(af, columns))
+            table.append(glare_utils.get_item_properties(af, columns))
         return (column_headers,
                 table)
 
