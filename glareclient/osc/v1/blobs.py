@@ -29,9 +29,9 @@ class UploadBlob(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(UploadBlob, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to display",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to display',
         )
         parser.add_argument(
             '--type-name',
@@ -47,7 +47,7 @@ class UploadBlob(command.ShowOne):
         )
         parser.add_argument(
             '--blob-property',
-            metavar="<key=value>",
+            metavar='<key=value>',
             default=None,
             help=''
         )
@@ -59,7 +59,7 @@ class UploadBlob(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
 
         blob = utils.get_data_file(parsed_args.blob)
@@ -93,9 +93,9 @@ class DownloadBlob(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(DownloadBlob, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to display",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to display',
         )
         parser.add_argument(
             '--type-name',
@@ -117,22 +117,25 @@ class DownloadBlob(command.ShowOne):
         )
         parser.add_argument(
             '--blob-property',
-            metavar="<key=value>",
+            metavar='<key=value>',
             default=None,
             help=''
         )
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.download_blob(parsed_args.id,
                                               parsed_args.blob_property,
-                                              parsed_args.blob,
                                               type_name=parsed_args.type_name)
         if parsed_args.progress:
             data = progressbar.VerboseIteratorWrapper(data, len(data))
-        if not (sys.stdout.isatty() and data.file is None):
-            utils.save_blob(data, data.file)
-
-        return self.dict2columns(data)
+        if not (sys.stdout.isatty() and parsed_args.file is None):
+            utils.save_blob(data, parsed_args.file)
+            return self.dict2columns(data)
+        else:
+            msg = ('No redirection or local file specified for downloaded '
+                   'blob. Please specify a local file with --file to save '
+                   'downloaded blob or redirect output to another source.')
+            utils.exit(msg)

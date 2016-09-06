@@ -53,13 +53,13 @@ class ListArtifacts(command.Lister):
             '--sort',
             default='name:asc',
             metavar='<key>[:<direction>]',
-            help="Comma-separated list of sort keys and directions in the "
-                 "form of <key>[:<asc|desc>].",
+            help='Comma-separated list of sort keys and directions in the '
+                 'form of <key>[:<asc|desc>].',
         )
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         params = {'limit': parsed_args.limit,
                   'filters': parsed_args.filters,
@@ -84,9 +84,9 @@ class ShowArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to display",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to display',
         )
         parser.add_argument(
             '--type-name',
@@ -97,7 +97,7 @@ class ShowArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.get(parsed_args.id,
                                     type_name=parsed_args.type_name)
@@ -129,7 +129,7 @@ class CreateArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--property',
-            metavar="<key=value>",
+            metavar='<key=value>',
             action='append',
             default=[],
             help=''
@@ -137,7 +137,7 @@ class CreateArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
 
         prop = {}
         for datum in parsed_args.property:
@@ -157,9 +157,9 @@ class UpdateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(UpdateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to update",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         parser.add_argument(
             '--type-name',
@@ -175,20 +175,20 @@ class UpdateArtifact(command.ShowOne):
         ),
         parser.add_argument(
             '--remove-property',
-            metavar="<key=value>",
+            metavar='<key=value>',
             default=[],
             help=''
         )
         parser.add_argument(
             '--new-values',
-            metavar="<key=value>",
+            metavar='<key=value>',
             default=[],
             help=''
         )
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
 
         remove_props = {}
         for datum in parsed_args.remove_property:
@@ -214,9 +214,9 @@ class DeleteArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(DeleteArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to delete",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to delete',
         )
         parser.add_argument(
             '--type-name',
@@ -227,7 +227,7 @@ class DeleteArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.delete(parsed_args.id,
                                        type_name=parsed_args.type_name)
@@ -240,9 +240,9 @@ class ActiveArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ActiveArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to activate",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to activate',
         )
         parser.add_argument(
             '--type-name',
@@ -253,7 +253,7 @@ class ActiveArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.active(parsed_args.id,
                                        type_name=parsed_args.type_name)
@@ -266,9 +266,9 @@ class DeactivateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(DeactivateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to deactivate",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to deactivate',
         )
         parser.add_argument(
             '--type-name',
@@ -279,7 +279,7 @@ class DeactivateArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.deactivete(parsed_args.id,
                                            type_name=parsed_args.type_name)
@@ -292,9 +292,9 @@ class ReactivateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ReactivateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to reactivate",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to reactivate',
         )
         parser.add_argument(
             '--type-name',
@@ -305,7 +305,7 @@ class ReactivateArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.reactivete(parsed_args.id,
                                            type_name=parsed_args.type_name)
@@ -318,9 +318,9 @@ class PublishArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(PublishArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<ID>",
-            help="ID of the artifact to publish",
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to publish',
         )
         parser.add_argument(
             '--type-name',
@@ -331,7 +331,7 @@ class PublishArtifact(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        LOG.debug("take_action({0})".format(parsed_args))
+        LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         data = client.artifacts.publish(parsed_args.id,
                                         type_name=parsed_args.type_name)

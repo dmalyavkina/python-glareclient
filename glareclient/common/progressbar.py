@@ -33,11 +33,13 @@ class _ProgressBarBase(object):
     def __init__(self, wrapped, totalsize):
         self._wrapped = wrapped
         self._totalsize = float(totalsize)
-        self._show_progress = sys.stdout.isatty() and self._totalsize != 0
+        self._show_progress = sys.stdout.isatty()
         self._percent = 0
 
     def _display_progress_bar(self, size_read):
         if self._show_progress:
+            if self._totalsize == 0:
+                self._totalsize = size_read
             self._percent += size_read / self._totalsize
             # Output something like this: [==========>             ] 49%
             sys.stdout.write('\r[{0:<30}] {1:.0%}'.format(
