@@ -336,4 +336,3 @@ class PublishArtifact(command.ShowOne):
         data = client.artifacts.publish(parsed_args.id,
                                         type_name=parsed_args.type_name)
         return self.dict2columns(data)
-

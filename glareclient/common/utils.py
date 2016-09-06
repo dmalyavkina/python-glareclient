@@ -23,8 +23,13 @@ import six
 import six.moves.urllib.parse as urlparse
 import sys
 
-from oslo_utils import importutils
+if os.name == 'nt':
+    import msvcrt
+else:
+    msvcrt = None
+
 from oslo_utils import encodeutils
+from oslo_utils import importutils
 
 SENSITIVE_HEADERS = ('X-Auth-Token', )
 
@@ -180,3 +185,96 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
         else:
             row.append(data)
     return tuple(row)
+
+
+def make_size_human_readable(size):
+    suffix = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']
+    base = 1024.0
+    index = 0
+
+    if size is None:
+        size = 0
+    while size >= base:
+        index = index + 1
+        size = size / base
+
+    padded = '%.1f' % size
+    stripped = padded.rstrip('0').rstrip('.')
+
+    return '%s%s' % (stripped, suffix[index])
+
+
+def save_blob(data, path):
+    """Save an image to the specified path.
+
+    :param data: binary data of the image
+    :param path: path to save the image to
+    """
+    if path is None:
+        blob = getattr(sys.stdout, 'buffer',
+                       sys.stdout)
+    else:
+        blob = open(path, 'wb')
+    try:
+        for chunk in data:
+            blob.write(chunk)
+    finally:
+        if path is not None:
+            blob.close()
+
+
+def get_data_file(blob):
+    if blob:
+        return open(blob, 'rb')
+    else:
+        # distinguish cases where:
+        # (1) stdin is not valid (as in cron jobs):
+        #     glare ... <&-
+        # (2) image data is provided through standard input:
+        #     glare ... < /tmp/file or cat /tmp/file | glare ...
+        # (3) no image data provided:
+        #     glare ...
+        try:
+            os.fstat(0)
+        except OSError:
+            # (1) stdin is not valid (closed...)
+            return None
+        if not sys.stdin.isatty():
+            # (2) blob data is provided through standard input
+            blob_data = sys.stdin
+            if hasattr(sys.stdin, 'buffer'):
+                blob_data = sys.stdin.buffer
+            if msvcrt:
+                msvcrt.setmode(blob_data.fileno(), os.O_BINARY)
+            return blob_data
+        else:
+            # (3) no blob data provided
+            return None
+
+
+def get_file_size(file_obj):
+    """Analyze file-like object and attempt to determine its size.
+
+    :param file_obj: file-like object.
+    :retval The file's size or None if it cannot be determined.
+    """
+    if (hasattr(file_obj, 'seek') and hasattr(file_obj, 'tell') and
+            (six.PY2 or six.PY3 and file_obj.seekable())):
+        try:
+            curr = file_obj.tell()
+            file_obj.seek(0, os.SEEK_END)
+            size = file_obj.tell()
+            file_obj.seek(curr)
+            return size
+        except IOError as e:
+            if e.errno == errno.ESPIPE:
+                # Illegal seek. This means the file object
+                # is a pipe (e.g. the user is trying
+                # to pipe image data to the client,
+                # echo testdata | bin/glance add blah...), or
+                # that file object is empty, or that a file-like
+                # object which doesn't support 'seek/tell' has
+                # been supplied.
+                return
+            else:
+                raise
