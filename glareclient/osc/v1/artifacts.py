@@ -27,19 +27,18 @@ class ListArtifacts(command.Lister):
         parser = super(ListArtifacts, self).get_parser(prog_name)
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
         parser.add_argument(
             '--limit',
-            default=None,
+            default=20,
             metavar='<LIMIT>',
             help='Maximum number of artifacts to get.',
         )
         parser.add_argument(
             '--page-size',
-            default=None,
+            default=20,
             metavar='<SIZE>',
             help='Number of artifacts to request in each paginated request.',
         )
@@ -90,7 +89,6 @@ class ShowArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
@@ -111,7 +109,6 @@ class CreateArtifact(command.ShowOne):
         parser = super(CreateArtifact, self).get_parser(prog_name)
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         ),
@@ -122,8 +119,8 @@ class CreateArtifact(command.ShowOne):
             help='Name of the artifact.',
         ),
         parser.add_argument(
-            '--version',
-            default=None,
+            '--artifact-version',
+            default='0.0.0',
             metavar='<VERSION>',
             help='Version of the artifact.',
         )
@@ -132,7 +129,7 @@ class CreateArtifact(command.ShowOne):
             metavar='<key=value>',
             action='append',
             default=[],
-            help='Name of artifact type.'
+            help='Artifact property.'
         )
         return parser
 
@@ -163,27 +160,27 @@ class UpdateArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         ),
         parser.add_argument(
             '--name',
-            default='',
             metavar='<NAME>',
             help='Name of the artifact',
         ),
         parser.add_argument(
             '--remove-property',
             metavar='<key=value>',
+            action='append',
             default=[],
             help='Property that will be removed.'
         )
         parser.add_argument(
-            '--new-values',
+            '--property',
             metavar='<key=value>',
+            action='append',
             default=[],
-            help='Update property values'
+            help='Update property values.'
         )
         return parser
 
@@ -195,16 +192,16 @@ class UpdateArtifact(command.ShowOne):
             key, value = datum.split('=', 1)
             remove_props[key] = value
 
-        new_values = {}
-        for datum in parsed_args.remove_property:
+        prop = {}
+        for datum in parsed_args.property:
             key, value = datum.split('=', 1)
-            new_values[key] = value
+            prop[key] = value
 
         client = self.app.client_manager.artifact
         data = client.artifacts.update(parsed_args.id,
                                        type_name=parsed_args.type_name,
                                        remove_props=remove_props,
-                                       new_values=new_values)
+                                       **prop)
         return self.dict2columns(data)
 
 
@@ -220,7 +217,6 @@ class DeleteArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
@@ -234,11 +230,11 @@ class DeleteArtifact(command.ShowOne):
         return self.dict2columns(data)
 
 
-class ActiveArtifact(command.ShowOne):
+class ActivateArtifact(command.ShowOne):
     """Activate the artifact"""
 
     def get_parser(self, prog_name):
-        parser = super(ActiveArtifact, self).get_parser(prog_name)
+        parser = super(ActivateArtifact, self).get_parser(prog_name)
         parser.add_argument(
             'id',
             metavar='<ID>',
@@ -246,7 +242,6 @@ class ActiveArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
@@ -272,7 +267,6 @@ class DeactivateArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
@@ -298,7 +292,6 @@ class ReactivateArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
@@ -324,7 +317,6 @@ class PublishArtifact(command.ShowOne):
         )
         parser.add_argument(
             '--type-name',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )

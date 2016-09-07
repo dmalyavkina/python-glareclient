@@ -63,7 +63,7 @@ class Controller(object):
         return body
 
     def update(self, artifact_id, type_name=None, remove_props=None,
-               new_values=None):
+               **kwargs):
         """Update attributes of an artifact.
 
         :param artifact_id: ID of the artifact to modify.
@@ -76,12 +76,12 @@ class Controller(object):
         changes = []
         if remove_props:
             for prop_name in remove_props:
-                if prop_name not in new_values:
+                if prop_name not in kwargs:
                     changes.append({'op': 'remove',
                                     'path': '/%s' % prop_name})
-        for prop_name in new_values:
-            changes.append({'op': 'replace', 'path': '/%s' + prop_name,
-                            'value': new_values[prop_name]})
+        for prop_name in kwargs:
+            changes.append({'op': 'add', 'path': '/%s' % prop_name,
+                            'value': kwargs[prop_name]})
         resp, body = self.http_client.patch(url, headers=hdrs, data=changes)
         return body
 
@@ -159,7 +159,7 @@ class Controller(object):
         :param artifact_id: ID of the artifact to get.
         """
         return self.update(artifact_id, type_name,
-                           new_values={'status': 'active'})
+                           status='active')
 
     def deactivate(self, artifact_id, type_name=None):
         """Set artifact status to 'deactivated'.
@@ -167,7 +167,7 @@ class Controller(object):
         :param artifact_id: ID of the artifact to get.
         """
         return self.update(artifact_id, type_name,
-                           new_values={'status': 'deactivated'})
+                           status='deactivated')
 
     def reactivate(self, artifact_id, type_name=None):
         """Set artifact status to 'active'.
@@ -175,7 +175,7 @@ class Controller(object):
         :param artifact_id: ID of the artifact to get.
         """
         return self.update(artifact_id, type_name,
-                           new_values={'status': 'active'})
+                           status='active')
 
     def publish(self, artifact_id, type_name=None):
         """Set artifact visibility to 'public'.
@@ -183,7 +183,7 @@ class Controller(object):
         :param artifact_id: ID of the artifact to get.
         """
         return self.update(artifact_id, type_name,
-                           new_values={'visibility': 'public'})
+                           visibility='public')
 
     def delete(self, artifact_id, type_name=None):
         """Delete an artifact and all its data.
