@@ -47,7 +47,7 @@ class UploadBlob(command.ShowOne):
         )
         parser.add_argument(
             '--blob-property',
-            metavar='<key=value>',
+            metavar='<BLOB_PROP>',
             default=None,
             help='Name of the blob field.'
         )
@@ -61,6 +61,9 @@ class UploadBlob(command.ShowOne):
     def take_action(self, parsed_args):
         LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
+
+        if not parsed_args.blob_property:
+            utils.exit('Not specified --blob-property.')
 
         blob = utils.get_data_file(parsed_args.blob)
         if parsed_args.progress:
@@ -117,7 +120,7 @@ class DownloadBlob(command.ShowOne):
         )
         parser.add_argument(
             '--blob-property',
-            metavar='<key=value>',
+            metavar='<BLOB_PROP>',
             default=None,
             help='Name of the blob field.'
         )
@@ -133,7 +136,7 @@ class DownloadBlob(command.ShowOne):
             data = progressbar.VerboseIteratorWrapper(data, len(data))
         if not (sys.stdout.isatty() and parsed_args.file is None):
             utils.save_blob(data, parsed_args.file)
-            return self.dict2columns(data)
+            return self.dict2columns(())
         else:
             msg = ('No redirection or local file specified for downloaded '
                    'blob. Please specify a local file with --file to save '
