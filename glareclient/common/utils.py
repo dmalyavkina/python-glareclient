@@ -97,7 +97,7 @@ def strip_version(endpoint):
 
 
 def integrity_iter(iter, checksum):
-    """Check image data integrity.
+    """Check blob integrity.
 
     :raises: IOError
     """
@@ -110,7 +110,7 @@ def integrity_iter(iter, checksum):
     md5sum = md5sum.hexdigest()
     if md5sum != checksum:
         raise IOError(errno.EPIPE,
-                      'Corrupt image download. Checksum was %s expected %s' %
+                      'Corrupt blob download. Checksum was %s expected %s' %
                       (md5sum, checksum))
 
 
@@ -205,10 +205,10 @@ def make_size_human_readable(size):
 
 
 def save_blob(data, path):
-    """Save an image to the specified path.
+    """Save a blob to the specified path.
 
-    :param data: binary data of the image
-    :param path: path to save the image to
+    :param data: blob of the artifact
+    :param path: path to save the blob to
     """
     if path is None:
         blob = getattr(sys.stdout, 'buffer',
@@ -230,9 +230,9 @@ def get_data_file(blob):
         # distinguish cases where:
         # (1) stdin is not valid (as in cron jobs):
         #     glare ... <&-
-        # (2) image data is provided through standard input:
+        # (2) blob is provided through standard input:
         #     glare ... < /tmp/file or cat /tmp/file | glare ...
-        # (3) no image data provided:
+        # (3) no blob provided:
         #     glare ...
         try:
             os.fstat(0)
@@ -270,8 +270,8 @@ def get_file_size(file_obj):
             if e.errno == errno.ESPIPE:
                 # Illegal seek. This means the file object
                 # is a pipe (e.g. the user is trying
-                # to pipe image data to the client,
-                # echo testdata | bin/glance add blah...), or
+                # to pipe blob to the client,
+                # echo testdata | bin/glare add blah...), or
                 # that file object is empty, or that a file-like
                 # object which doesn't support 'seek/tell' has
                 # been supplied.

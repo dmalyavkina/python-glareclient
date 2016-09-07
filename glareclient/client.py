@@ -19,9 +19,9 @@ from glareclient.common import utils
 
 
 def Client(version=None, endpoint=None, session=None, *args, **kwargs):
-    """Client for the OpenStack Images API.
+    """Client for the Glare Artifact Repository.
 
-    Generic client for the OpenStack Images API. See version classes
+    Generic client for the Glare Artifact Repository. See version classes
     for specific details.
 
     :param string version: The version of API to use.

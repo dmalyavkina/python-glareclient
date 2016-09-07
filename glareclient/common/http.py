@@ -105,9 +105,9 @@ class _BaseHTTPClient(object):
 
         content_type = resp.headers.get('Content-Type')
 
-        # Read body into string if it isn't obviously image data
+        # Read body into string if it isn't obviously blob
         if content_type == 'application/octet-stream':
-            # Do not read all response in memory when downloading an image.
+            # Do not read all response in memory when downloading an blob.
             body_iter = _close_after_stream(resp, CHUNKSIZE)
         else:
             content = resp.text
@@ -306,7 +306,7 @@ class SessionClient(adapter.Adapter, _BaseHTTPClient):
 
     def __init__(self, session, **kwargs):
         kwargs.setdefault('user_agent', USER_AGENT)
-        kwargs.setdefault('service_type', 'image')
+        kwargs.setdefault('service_type', 'artifact')
         self.last_request_id = None
         super(SessionClient, self).__init__(session, **kwargs)
 

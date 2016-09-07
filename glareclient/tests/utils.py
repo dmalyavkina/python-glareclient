@@ -206,8 +206,6 @@ def build_call_record(method, url, headers, data):
     if isinstance(data, dict):
         data = sorted(data.items())
     if isinstance(data, six.string_types):
-        # NOTE(flwang): For image update, the data will be a 'list' which
-        # contains operation dict, such as: [{"op": "remove", "path": "/a"}]
         try:
             data = json.loads(data)
         except ValueError:

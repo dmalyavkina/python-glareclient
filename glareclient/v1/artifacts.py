@@ -97,9 +97,9 @@ class Controller(object):
         return body
 
     def list(self, type_name=None, **kwargs):
-        """Retrieve a listing of Image objects.
+        """Retrieve a listing of artifacts objects.
 
-        :param page_size: Number of images to request in each
+        :param page_size: Number of artifacts to request in each
                           paginated request.
         :returns: generator over list of artifacts.
         """

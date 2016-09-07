@@ -31,25 +31,25 @@ class UploadBlob(command.ShowOne):
         parser.add_argument(
             'id',
             metavar='<ID>',
-            help='ID of the artifact to display',
+            help='ID of the artifact to upload blob.',
         )
         parser.add_argument(
             '--type-name',
             default=None,
             metavar='<TYPE_NAME>',
-            help='',
+            help='Name of artifact type.',
         )
         parser.add_argument(
             '--blob',
             default=None,
             metavar='<TYPE_NAME>',
-            help='',
+            help='Local file that contains blob to be uploaded.',
         )
         parser.add_argument(
             '--blob-property',
             metavar='<key=value>',
             default=None,
-            help=''
+            help='Name of the blob field.'
         )
         parser.add_argument(
             '--progress',
@@ -95,13 +95,13 @@ class DownloadBlob(command.ShowOne):
         parser.add_argument(
             'id',
             metavar='<ID>',
-            help='ID of the artifact to display',
+            help='ID of the artifact to download blob.',
         )
         parser.add_argument(
             '--type-name',
             default=None,
             metavar='<TYPE_NAME>',
-            help='',
+            help='Name of artifact type.',
         )
         parser.add_argument(
             '--progress',
@@ -119,7 +119,7 @@ class DownloadBlob(command.ShowOne):
             '--blob-property',
             metavar='<key=value>',
             default=None,
-            help=''
+            help='Name of the blob field.'
         )
         return parser
 
