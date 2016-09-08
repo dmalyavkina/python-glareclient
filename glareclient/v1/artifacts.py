@@ -130,21 +130,21 @@ class Controller(object):
                 except KeyError:
                     return
 
-        filters = kwargs.get('filters', {})
-        filters['limit'] = page_size
+        filters = kwargs.get('filters', [])
+        filters.append(('limit', page_size))
 
         url_params = []
-        for param, items in six.iteritems(filters):
+        for param, items in filters:
             values = [items] if not isinstance(items, list) else items
             for value in values:
                 if isinstance(value, six.string_types):
                     value = encodeutils.safe_encode(value)
                 url_params.append({param: value})
 
-        url = '/artifacts/%s' % type_name
+        url = '/artifacts/%s?' % type_name
 
         for param in url_params:
-            url = '%s?%s' % (url, parse.urlencode(param))
+            url = '%s&%s' % (url, parse.urlencode(param))
 
         if 'sort' in kwargs:
             url = '%s&sort=%s' % (url, self._validate_sort_param(

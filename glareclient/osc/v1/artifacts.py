@@ -26,7 +26,7 @@ class ListArtifacts(command.Lister):
     def get_parser(self, prog_name):
         parser = super(ListArtifacts, self).get_parser(prog_name)
         parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         )
@@ -44,7 +44,8 @@ class ListArtifacts(command.Lister):
         )
         parser.add_argument(
             '--filters',
-            default={},
+            default=[],
+            action='append',
             metavar='<KEY=VALUE>',
             help='Filtering artifact list by a user-defined property.',
         )
@@ -61,7 +62,7 @@ class ListArtifacts(command.Lister):
         LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         params = {'limit': parsed_args.limit,
-                  'filters': parsed_args.filters,
+                  'filters': [f.split('=', 1) for f in parsed_args.filters],
                   'sort': parsed_args.sort,
                   'page_size': parsed_args.page_size}
 
@@ -83,14 +84,14 @@ class ShowArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to display.',
-        )
-        parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         return parser
 
@@ -108,12 +109,12 @@ class CreateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
         ),
         parser.add_argument(
-            '--name',
+            'name',
             default='',
             metavar='<NAME>',
             help='Name of the artifact.',
@@ -154,15 +155,15 @@ class UpdateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(UpdateArtifact, self).get_parser(prog_name)
         parser.add_argument(
+            'type_name',
+            metavar='<TYPE_NAME>',
+            help='Name of artifact type.',
+        ),
+        parser.add_argument(
             'id',
             metavar='<ID>',
             help='ID of the artifact to update',
         )
-        parser.add_argument(
-            '--type-name',
-            metavar='<TYPE_NAME>',
-            help='Name of artifact type.',
-        ),
         parser.add_argument(
             '--name',
             metavar='<NAME>',
@@ -211,14 +212,14 @@ class DeleteArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(DeleteArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to delete.',
-        )
-        parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         return parser
 
@@ -236,14 +237,14 @@ class ActivateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ActivateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to activate.',
-        )
-        parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         return parser
 
@@ -261,14 +262,14 @@ class DeactivateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(DeactivateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to deactivate.',
-        )
-        parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         return parser
 
@@ -286,14 +287,14 @@ class ReactivateArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ReactivateArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to reactivate.',
-        )
-        parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         return parser
 
@@ -311,14 +312,14 @@ class PublishArtifact(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(PublishArtifact, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to publish.',
-        )
-        parser.add_argument(
-            '--type-name',
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         return parser
 

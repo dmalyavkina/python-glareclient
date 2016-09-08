@@ -23,37 +23,45 @@ from oslo_log import log as logging
 LOG = logging.getLogger(__name__)
 
 
+def _default_blob_property(type_name):
+    if type_name == 'images':
+        return 'image'
+    elif type_name == 'murano_packages':
+        return 'package'
+    elif type_name in ('heat_templates', 'tosca_templates'):
+        return 'template'
+    elif type_name == 'heat_environments':
+        return 'environment'
+    utils.exit('Unknown artifact type. Please specify --blob-property.')
+
+
 class UploadBlob(command.ShowOne):
     """Upload blob"""
 
     def get_parser(self, prog_name):
         parser = super(UploadBlob, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to upload blob.',
-        )
-        parser.add_argument(
-            '--type-name',
-            default=None,
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         parser.add_argument(
             '--blob',
-            default=None,
             metavar='<TYPE_NAME>',
             help='Local file that contains blob to be uploaded.',
         )
         parser.add_argument(
             '--blob-property',
-            metavar='<BLOB_PROP>',
-            default=None,
+            metavar='<BLOB_PROPERTY>',
             help='Name of the blob field.'
         )
         parser.add_argument(
             '--progress',
-            default=False,
             help='Show download progress bar.'
         )
         return parser
@@ -63,7 +71,8 @@ class UploadBlob(command.ShowOne):
         client = self.app.client_manager.artifact
 
         if not parsed_args.blob_property:
-            utils.exit('Not specified --blob-property.')
+            parsed_args.blob_property = _default_blob_property(
+                parsed_args.type_name)
 
         blob = utils.get_data_file(parsed_args.blob)
         if parsed_args.progress:
@@ -90,21 +99,20 @@ class UploadBlob(command.ShowOne):
         return self.dict2columns(data_to_display)
 
 
-class DownloadBlob(command.ShowOne):
+class DownloadBlob(command.Command):
     """Download blob"""
 
     def get_parser(self, prog_name):
         parser = super(DownloadBlob, self).get_parser(prog_name)
         parser.add_argument(
-            'id',
-            metavar='<ID>',
-            help='ID of the artifact to download blob.',
-        )
-        parser.add_argument(
-            '--type-name',
-            default=None,
+            'type_name',
             metavar='<TYPE_NAME>',
             help='Name of artifact type.',
+        ),
+        parser.add_argument(
+            'id',
+            metavar='<ID>',
+            help='ID of the artifact to update',
         )
         parser.add_argument(
             '--progress',
@@ -120,7 +128,7 @@ class DownloadBlob(command.ShowOne):
         )
         parser.add_argument(
             '--blob-property',
-            metavar='<BLOB_PROP>',
+            metavar='<BLOB_PROPERTY>',
             default=None,
             help='Name of the blob field.'
         )
@@ -129,6 +137,9 @@ class DownloadBlob(command.ShowOne):
     def take_action(self, parsed_args):
         LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
+        if not parsed_args.blob_property:
+            parsed_args.blob_property = _default_blob_property(
+                parsed_args.type_name)
         data = client.artifacts.download_blob(parsed_args.id,
                                               parsed_args.blob_property,
                                               type_name=parsed_args.type_name)
