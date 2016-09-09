@@ -12,10 +12,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
+
 from osc_lib.command import command
-from oslo_log import log as logging
 
 from glareclient.common import utils as glare_utils
+from glareclient.osc.v1 import TypeMapperAction
+
 
 LOG = logging.getLogger(__name__)
 
@@ -28,6 +31,7 @@ class ListArtifacts(command.Lister):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         )
         parser.add_argument(
@@ -43,7 +47,7 @@ class ListArtifacts(command.Lister):
             help='Number of artifacts to request in each paginated request.',
         )
         parser.add_argument(
-            '--filters',
+            '--filter',
             default=[],
             action='append',
             metavar='<KEY=VALUE>',
@@ -62,7 +66,7 @@ class ListArtifacts(command.Lister):
         LOG.debug('take_action({0})'.format(parsed_args))
         client = self.app.client_manager.artifact
         params = {'limit': parsed_args.limit,
-                  'filters': [f.split('=', 1) for f in parsed_args.filters],
+                  'filters': [f.split('=', 1) for f in parsed_args.filter],
                   'sort': parsed_args.sort,
                   'page_size': parsed_args.page_size}
 
@@ -86,6 +90,7 @@ class ShowArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -111,6 +116,7 @@ class CreateArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -145,6 +151,7 @@ class CreateArtifact(command.ShowOne):
         client = self.app.client_manager.artifact
         data = client.artifacts.create(parsed_args.name,
                                        type_name=parsed_args.type_name,
+                                       version=parsed_args.artifact_version,
                                        **prop)
         return self.dict2columns(data)
 
@@ -157,6 +164,7 @@ class UpdateArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -214,6 +222,7 @@ class DeleteArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -239,6 +248,7 @@ class ActivateArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -264,6 +274,7 @@ class DeactivateArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -289,6 +300,7 @@ class ReactivateArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -314,6 +326,7 @@ class PublishArtifact(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(

@@ -12,13 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
 import sys
+
+from osc_lib.command import command
 
 from glareclient.common import progressbar
 from glareclient.common import utils
-
-from osc_lib.command import command
-from oslo_log import log as logging
+from glareclient.osc.v1 import TypeMapperAction
 
 LOG = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ class UploadBlob(command.ShowOne):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
@@ -107,6 +109,7 @@ class DownloadBlob(command.Command):
         parser.add_argument(
             'type_name',
             metavar='<TYPE_NAME>',
+            action=TypeMapperAction,
             help='Name of artifact type.',
         ),
         parser.add_argument(
