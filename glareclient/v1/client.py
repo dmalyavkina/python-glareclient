@@ -23,18 +23,14 @@ from glareclient.v1 import versions
 class Client(object):
     """Client for the Glare Artifact Repository v2 API.
 
-    :param string endpoint: A user-supplied endpoint URL for the glare
-                            service.
+    :param string endpoint: A user-supplied endpoint URL for the glare service.
     :param string token: Token for authentication.
-    :param integer timeout: Allows customization of the timeout for client
-                            http requests. (optional)
-    :param string language_header: Set Accept-Language header to be sent in
-                                   requests to glare.
     """
 
     def __init__(self, endpoint=None, **kwargs):
+        """Initialize a new client for the Glare v1 API."""
         endpoint, self.version = utils.endpoint_version_from_url(endpoint, 1.0)
-        self.http_client = http.get_http_client(endpoint=endpoint, **kwargs)
-
+        self.http_client = http._construct_http_client(**kwargs)
         self.artifacts = artifacts.Controller(self.http_client)
         self.versions = versions.VersionController(self.http_client)
+
