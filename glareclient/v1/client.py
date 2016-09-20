@@ -28,6 +28,7 @@ class Client(object):
 
     def __init__(self, endpoint, **kwargs):
         """Initialize a new client for the Glare v1 API."""
+        
         self.version = kwargs.get('version')
         self.http_client = http.construct_http_client(endpoint, **kwargs)
         self.artifacts = artifacts.Controller(self.http_client)

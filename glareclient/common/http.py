@@ -331,7 +331,9 @@ def construct_http_client(*args, **kwargs):
     auth = kwargs.pop('auth', None)
     endpoint = next(iter(args), None)
 
-    if session:
+    if kwargs.get('token'):
+        return HTTPClient(*args, **kwargs)
+    else:
         service_type = kwargs.pop('service_type', None)
         endpoint_type = kwargs.pop('endpoint_type', None)
         region_name = kwargs.pop('region_name', None)
@@ -348,8 +350,6 @@ def construct_http_client(*args, **kwargs):
         }
         parameters.update(kwargs)
         return SessionClient(**parameters)
-    else:
-        return HTTPClient(*args, **kwargs)
 
 
 def _set_data(kwargs):
