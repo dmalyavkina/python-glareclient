@@ -74,28 +74,6 @@ def print_err(msg):
     print(encodeutils.safe_decode(msg), file=sys.stderr)
 
 
-def strip_version(endpoint):
-    """Strip version from the last component of endpoint if present."""
-    # NOTE(flaper87): This shouldn't be necessary if
-    # we make endpoint the first argument. However, we
-    # can't do that just yet because we need to keep
-    # backwards compatibility.
-    if not isinstance(endpoint, six.string_types):
-        raise ValueError("Expected endpoint")
-
-    version = None
-    # Get rid of trailing '/' if present
-    endpoint = endpoint.rstrip('/')
-    url_parts = urlparse.urlparse(endpoint)
-    (scheme, netloc, path, __, __, __) = url_parts
-    path = path.lstrip('/')
-    # regex to match 'v1' or 'v2.0' etc
-    if re.match('v\d+\.?\d*', path):
-        version = float(path.lstrip('v'))
-        endpoint = scheme + '://' + netloc
-    return endpoint, version
-
-
 def integrity_iter(iter, checksum):
     """Check blob integrity.
 

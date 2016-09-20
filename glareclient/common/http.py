@@ -310,13 +310,14 @@ class SessionClient(adapter.LegacyJsonAdapter):
                 resp = self.request(path, method, **kwargs)
         elif resp.status_code == 300:
             raise exc.from_response(resp)
+        return resp, body
 
     def credentials_headers(self):
         return {}
 
     def strip_endpoint(self, location):
         if location is None:
-            message = _("Location not returned with 302")
+            message = "Location not returned with 302"
             raise exc.InvalidEndpoint(message=message)
         if (self.endpoint_override is not None and
                 location.lower().startswith(self.endpoint_override.lower())):
@@ -325,7 +326,7 @@ class SessionClient(adapter.LegacyJsonAdapter):
             return location
 
 
-def _construct_http_client(*args, **kwargs):
+def construct_http_client(*args, **kwargs):
     session = kwargs.pop('session', None)
     auth = kwargs.pop('auth', None)
     endpoint = next(iter(args), None)

@@ -15,7 +15,6 @@
 
 
 from glareclient.common import http
-from glareclient.common import utils
 from glareclient.v1 import artifacts
 from glareclient.v1 import versions
 
@@ -27,10 +26,10 @@ class Client(object):
     :param string token: Token for authentication.
     """
 
-    def __init__(self, endpoint=None, **kwargs):
+    def __init__(self, endpoint, **kwargs):
         """Initialize a new client for the Glare v1 API."""
-        endpoint, self.version = utils.endpoint_version_from_url(endpoint, 1.0)
-        self.http_client = http._construct_http_client(**kwargs)
+        self.version = kwargs.get('version')
+        self.http_client = http.construct_http_client(endpoint, **kwargs)
         self.artifacts = artifacts.Controller(self.http_client)
         self.versions = versions.VersionController(self.http_client)
 
