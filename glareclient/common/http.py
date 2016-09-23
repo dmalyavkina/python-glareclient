@@ -51,6 +51,32 @@ def get_system_ca_file():
     LOG.warning("System ca file could not be found.")
 
 
+def _chunk_body(body):
+    chunk = body
+    while chunk:
+        chunk = body.read(CHUNKSIZE)
+        if not chunk:
+            break
+        yield chunk
+
+
+def _set_request_params(kwargs_params):
+    params = copy.deepcopy(kwargs_params)
+
+    headers = params.get('headers', {})
+    content_type = headers.get('Content-Type', 'application/json')
+    data = params.pop('data', None)
+
+    if data is not None:
+        if content_type.startswith('application/json'):
+            data = jsonutils.dumps(data)
+        if content_type == 'application/octet-stream':
+            data = _chunk_body(data)
+        params['data'] = data
+    params['stream'] = content_type == 'application/octet-stream'
+    return params
+
+
 class HTTPClient(object):
 
     def __init__(self, endpoint, **kwargs):
@@ -290,40 +316,13 @@ class SessionClient(adapter.LegacyJsonAdapter):
     """HTTP client based on Keystone client session."""
 
     def request(self, url, method, **kwargs):
-        redirect = kwargs.get('redirect')
-        kwargs.setdefault('user_agent', USER_AGENT)
-
-        if 'data' in kwargs:
-            kwargs['data'] = jsonutils.dumps(kwargs['data'])
+        params = _set_request_params(kwargs)
 
         resp, body = super(SessionClient, self).request(
             url, method,
-            raise_exc=False,
-            **kwargs)
+            **params)
 
-        if 400 <= resp.status_code < 600:
-            raise exc.from_response(resp)
-        elif resp.status_code in (301, 302, 305):
-            if redirect:
-                location = resp.headers.get('location')
-                path = self.strip_endpoint(location)
-                resp = self.request(path, method, **kwargs)
-        elif resp.status_code == 300:
-            raise exc.from_response(resp)
         return resp, body
-
-    def credentials_headers(self):
-        return {}
-
-    def strip_endpoint(self, location):
-        if location is None:
-            message = "Location not returned with 302"
-            raise exc.InvalidEndpoint(message=message)
-        if (self.endpoint_override is not None and
-                location.lower().startswith(self.endpoint_override.lower())):
-                return location[len(self.endpoint_override):]
-        else:
-            return location
 
 
 def construct_http_client(*args, **kwargs):
