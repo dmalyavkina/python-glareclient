@@ -26,6 +26,7 @@ import requests
 import six
 from six.moves import urllib
 
+from glareclient._i18n import _
 from glareclient.common import exceptions as exc
 
 LOG = logging.getLogger(__name__)
@@ -62,7 +63,6 @@ def _chunk_body(body):
 
 def _set_request_params(kwargs_params):
     params = copy.deepcopy(kwargs_params)
-
     headers = params.get('headers', {})
     content_type = headers.get('Content-Type', 'application/json')
     data = params.pop('data', None)
@@ -73,8 +73,41 @@ def _set_request_params(kwargs_params):
         if content_type == 'application/octet-stream':
             data = _chunk_body(data)
         params['data'] = data
+
+    headers.update({'Content-Type': content_type})
+    params['headers'] = headers
     params['stream'] = content_type == 'application/octet-stream'
+
     return params
+
+
+def _handle_response(resp):
+        content_type = resp.headers.get('Content-Type')
+        if not content_type:
+            body_iter = six.StringIO(resp.text)
+            try:
+                body_iter = jsonutils.loads(''.join([c for c in body_iter]))
+            except ValueError:
+                body_iter = None
+        elif content_type.startswith('application/json'):
+            # Let's use requests json method, it should take care of
+            # response encoding
+            body_iter = resp.json()
+        else:
+            # Do not read all response in memory when downloading a blob.
+            body_iter = _close_after_stream(resp, CHUNKSIZE)
+        return resp, body_iter
+
+
+def _close_after_stream(response, chunk_size):
+    """Iterate over the content and ensure the response is closed after."""
+    # Yield each chunk in the response body
+    for chunk in response.iter_content(chunk_size=chunk_size):
+        yield chunk
+    # Once we're done streaming the body, ensure everything is closed.
+    # This will return the connection to the HTTPConnectionPool in urllib3
+    # and ideally reduce the number of HTTPConnectionPool full warnings.
+    response.close()
 
 
 class HTTPClient(object):
@@ -167,8 +200,6 @@ class HTTPClient(object):
         Wrapper around requests.request to handle tasks such
         as setting headers and error handling.
         """
-        _set_data(kwargs)
-
         # Copy the kwargs so we can reuse the original in case of redirects
         kwargs['headers'] = copy.deepcopy(kwargs.get('headers', {}))
         kwargs['headers'].setdefault('User-Agent', USER_AGENT)
@@ -212,15 +243,15 @@ class HTTPClient(object):
                 allow_redirects=allow_redirects,
                 **kwargs)
         except socket.gaierror as e:
-            message = ("Error finding address for %(url)s: %(e)s" %
-                       {'url': self.endpoint_url + url, 'e': e})
+            message = _("Error finding address for %(url)s: %(e)s" %
+                        {'url': self.endpoint_url + url, 'e': e})
             raise exc.InvalidEndpoint(message=message)
         except (socket.error,
                 socket.timeout,
                 requests.exceptions.ConnectionError) as e:
             endpoint = self.endpoint
-            message = ("Error communicating with %(endpoint)s %(e)s" %
-                       {'endpoint': endpoint, 'e': e})
+            message = _("Error communicating with %(endpoint)s %(e)s" %
+                        {'endpoint': endpoint, 'e': e})
             raise exc.CommunicationError(message=message)
 
         if log:
@@ -265,29 +296,10 @@ class HTTPClient(object):
             creds['X-Auth-Key'] = self.password
         return creds
 
-    def json_request(self, url, method, content_type='application/json',
-                     **kwargs):
-
-        kwargs.setdefault('headers', {})
-        kwargs['headers'].setdefault('Content-Type', content_type)
-        # Don't set Accept because we aren't always dealing in JSON
-
-        _set_data(kwargs)
-        if 'data' in kwargs:
-            kwargs['data'] = jsonutils.dumps(kwargs['data'])
-
-        resp = self.request(url, method, **kwargs)
-        body = resp.content
-
-        if body and 'application/json' in resp.headers['content-type']:
-            try:
-                body = resp.json()
-            except ValueError:
-                LOG.error('Could not decode response body as JSON')
-        else:
-            body = None
-
-        return resp, body
+    def json_request(self, url, method, **kwargs):
+        params = _set_request_params(kwargs)
+        resp = self.request(url, method, **params)
+        return _handle_response(resp)
 
     def json_patch_request(self, url, method='PATCH', **kwargs):
         return self.json_request(
@@ -317,12 +329,35 @@ class SessionClient(adapter.LegacyJsonAdapter):
 
     def request(self, url, method, **kwargs):
         params = _set_request_params(kwargs)
+        redirect = kwargs.get('redirect')
 
         resp, body = super(SessionClient, self).request(
             url, method,
             **params)
 
+        if 400 <= resp.status_code < 600:
+            raise exc.from_response(resp)
+        elif resp.status_code in (301, 302, 305):
+            if redirect:
+                location = resp.headers.get('location')
+                path = self.strip_endpoint(location)
+                resp = self.request(path, method, **kwargs)
+        elif resp.status_code == 300:
+            raise exc.from_response(resp)
+
+        if resp.headers.get('Content-Type') == 'application/octet-stream':
+            body = _close_after_stream(resp, CHUNKSIZE)
         return resp, body
+
+    def strip_endpoint(self, location):
+        if location is None:
+            message = _("Location not returned with 302")
+            raise exc.InvalidEndpoint(message=message)
+        if (self.endpoint_override is not None and
+                location.lower().startswith(self.endpoint_override.lower())):
+                return location[len(self.endpoint_override):]
+        else:
+            return location
 
 
 def construct_http_client(*args, **kwargs):
@@ -349,12 +384,3 @@ def construct_http_client(*args, **kwargs):
         }
         parameters.update(kwargs)
         return SessionClient(**parameters)
-
-
-def _set_data(kwargs):
-    if 'body' in kwargs:
-        if 'data' in kwargs:
-            raise ValueError("Can't provide both 'data' and "
-                             "'body' to a request")
-        LOG.warning("Use of 'body' is deprecated; use 'data' instead")
-        kwargs['data'] = kwargs.pop('body')
